@@ -65,6 +65,19 @@ To get started with CrustAGI, follow these steps:
 3. Set up environment variables for OpenAI and Pinecone API keys, Pinecone region and project ID, Pinecone index name, initial task, and objective. You can use a .env file to store these variables. The dotenv crate is used to load environment variables from the ```.env``` file.
 4. Run the code using ```cargo run```.
 
+Example .env file:
+
+```
+OPENAI_API_KEY="<your openai api key>"
+OPENAI_API_MODEL="gpt-3.5-turbo"
+PINECONE_API_KEY="<pinecone api>"
+PINECONE_PROJECT_ID="7924c0c"
+PINECONE_REGION="us-west1-gcp"
+PINECONE_INDEX_NAME="test"
+OBJECTIVE="<your objective>"
+INITIAL_TASK="<the initial task>"
+```
+
 ## Task Structure
 Tasks are represented by the Task struct, which includes a task ID and task name. The task list is maintained as a ```VecDeque<Task>```.
 
@@ -93,7 +106,7 @@ CrustAGI is designed to run continuously as part of a task management system. Ru
 CrustAGI is open-source software. For more information, please see the LICENSE file in the CrustAGI repository.
 
 ## Acknowledgments
-We would like to acknowledge and thank @yoheinakajima for creating the original BabyAGI project, which inspired the creation of CrustAGI. We also want to thank the contributors and community members who have supported and contributed to the development of both projects.
+We would like to acknowledge and thank @yoheinakajima for creating the original [BabyAGI](https://github.com/yoheinakajima/babyagi) project, which inspired the creation of CrustAGI. We also want to thank the contributors and community members who have supported and contributed to the development of both projects.
 
 ## Contact
 For questions, issues, or contributions, please feel free to open an issue or pull request in the CrustAGI GitHub repository. We welcome feedback and contributions from the community.
