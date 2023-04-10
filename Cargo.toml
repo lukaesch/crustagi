@@ -1,0 +1,11 @@
+[package]
+name = "crustgpt"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+reqwest = { version = "0.11.4", features = ["json"] }
+serde = { version = "1.0.133", features = ["derive"] }
+serde_json = "1.0.69"
+dotenv = "0.15.0"
+tokio = { version = "1.27.0", features = ["full"] }
