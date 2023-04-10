@@ -5,40 +5,54 @@ CrustAGI is a Rust-based implementation of an AI-powered task management system 
 ## How It Works
 CrustAGI operates in an infinite loop, performing the following steps:
 
-1. Pull the first task from the task list.
-2. Execute the task using the execution_agent function, which sends the task to OpenAI's API for completion based on the context.
-3. Enrich the result and store it in Pinecone.
-4. Generate new tasks using the task_creation_agent function, which creates tasks based on the objective and the result of the previous task.
-5. Reprioritize the task list using the prioritization_agent function, which reorders tasks based on the objective.
+1. Load environment variables.
+2. Create and connect to a Pinecone index.
+3. Initialize the task list.
+4. Enter the main loop:
+* 1. Execute the first task and store the enriched result in Pinecone.
+* 2. Use agents and modules to interact with OpenAI and Pinecone:
+    - OpenAI is called to perform natural language processing tasks, generate embeddings, and assist with task creation and prioritization.
+    - Pinecone is used for vector similarity search to query and retrieve contextually relevant information based on embeddings.
+* 3. Create and reprioritize tasks based on insights from OpenAI.
+* 4. Repeat the loop with the next task.
+5. Continue the loop until a termination condition is met.
 
 ```mermaid
 graph TD
-    A[Load Environment Variables] --> B[Set Config]
-    B --> C[Set Pinecone Index]
-    C --> D[Create Task List]
-    D --> E[Main Loop]
-    E --> F[Pull the First Task]
-    F --> G[Execution Agent]
-    G -->|openai_call| GA[OpenAI Module]
-    GA -->|get_ada_embedding| GB[OpenAI Module]
-    GB -->|query_index| GC[Pinecone Module]
-    GC --> G
-    G --> H[Enrich Result and Store in Pinecone]
-    H -->|get_ada_embedding| HA[OpenAI Module]
-    HA -->|upsert| HB[Pinecone Module]
-    HB --> H
-    H --> I[Task Creation Agent]
-    I -->|openai_call| IA[OpenAI Module]
-    IA --> I
-    I --> J[Add New Tasks to Task List]
-    J --> K[Prioritization Agent]
-    K -->|openai_call| KA[OpenAI Module]
-    KA --> K
-    K --> L[Sleep]
-    L --> E
+    A[Load Environment Variables] --> F[Create Pinecone Index]
+    F -->|pinecone::create_index| FC[Pinecone Module]
+    FC --> G[Connect to Pinecone Index]
+    G -->|pinecone::list_indexes| GC[Pinecone Module]
+    GC --> H[Initialize Task List]
+    H --> I[Main Loop]
+    I --> J[Pull First Task]
+    J --> K[Execute Task]
+    K --> L[Enrich Result and Store in Pinecone]
+    L -->|pinecone::upsert| LC[Pinecone Module]
+    LC --> M[Create New Tasks and Reprioritize Task List]
+    M --> I
+    K --> N[Execution Agent]
+    N -->|openai::openai_call| NA[OpenAI Module]
+    NA --> N
+    N -->|openai::get_ada_embedding| NB[OpenAI Module]
+    NB --> N
+    N -->|context_agent| NC[Context Agent]
+    NC --> N
+    M --> O[Task Creation Agent]
+    O -->|openai::openai_call| OA[OpenAI Module]
+    OA --> O
+    M --> P[Prioritization Agent]
+    P -->|openai::openai_call| PA[OpenAI Module]
+    PA --> P
+    K --> Q[Context Agent]
+    Q -->|openai::get_ada_embedding| QA[OpenAI Module]
+    QA --> Q
+    Q -->|pinecone::query_index| QC[Pinecone Module]
+    QC --> Q
+    L --> Q
 
     classDef modules fill:#f9,stroke:#f08080,stroke-width:2px;
-    class GA,GB,GC,HA,HB,IA,KA modules;
+    class FC,GC,LC,NA,NB,NC,OA,PA,QA,QC modules
 ```
 
 The program uses Pinecone (a cloud-hosted VectorDB) to create an index for storing task results, along with task names and additional metadata. The context_agent function retrieves the context of previously completed tasks from Pinecone to inform the execution of the current task.
@@ -47,19 +61,19 @@ The program uses Pinecone (a cloud-hosted VectorDB) to create an index for stori
 To get started with CrustAGI, follow these steps:
 
 1. Clone the CrustAGI repository and navigate to the cloned directory.
-2. Ensure that you have the Rust environment set up and install any required Rust dependencies.
-3. Set up environment variables for OpenAI and Pinecone API keys, Pinecone region and project ID, Pinecone index name, initial task, and objective. You can use a .env file to store these variables. The dotenv crate is used to load environment variables from the .env file.
-4. Run the code using cargo run.
+2. Ensure that you have the Rust environment set up
+3. Set up environment variables for OpenAI and Pinecone API keys, Pinecone region and project ID, Pinecone index name, initial task, and objective. You can use a .env file to store these variables. The dotenv crate is used to load environment variables from the ```.env``` file.
+4. Run the code using ```cargo run```.
 
-Task Structure
-Tasks are represented by the Task struct, which includes a task ID and task name. The task list is maintained as a VecDeque<Task>.
+## Task Structure
+Tasks are represented by the Task struct, which includes a task ID and task name. The task list is maintained as a ```VecDeque<Task>```.
 
 ## Functions
-- task_creation_agent: Generates new tasks based on the objective and result of the previous task.
-- prioritization_agent: Reprioritizes the task list based on the objective.
-- execution_agent: Executes the current task using OpenAI's API.
-- context_agent: Retrieves the context of previously completed tasks from Pinecone.
-- add_task: Adds a new task to the task list.
+- ```task_creation_agent```: Generates new tasks based on the objective and result of the previous task.
+- ```prioritization_agent```: Reprioritizes the task list based on the objective.
+- ```execution_agent```: Executes the current task using OpenAI's API.
+- ```context_agent```: Retrieves the context of previously completed tasks from Pinecone.
+- ```add_task```: Adds a new task to the task list.
 
 ## Main Loop
 The main function contains the main loop that continuously executes tasks, generates new tasks, and reprioritizes the task list. The loop sleeps for one second before checking the task list again.
