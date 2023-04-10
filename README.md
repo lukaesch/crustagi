@@ -11,7 +11,37 @@ CrustAGI operates in an infinite loop, performing the following steps:
 4. Generate new tasks using the task_creation_agent function, which creates tasks based on the objective and the result of the previous task.
 5. Reprioritize the task list using the prioritization_agent function, which reorders tasks based on the objective.
 
-The script uses Pinecone to create an index for storing task results, along with task names and additional metadata. The context_agent function retrieves the context of previously completed tasks from Pinecone to inform the execution of the current task.
+```mermaid
+graph TD
+    A[Load Environment Variables] --> B[Set Config]
+    B --> C[Set Pinecone Index]
+    C --> D[Create Task List]
+    D --> E[Main Loop]
+    E --> F[Pull the First Task]
+    F --> G[Execution Agent]
+    G -->|openai_call| GA[OpenAI Module]
+    GA -->|get_ada_embedding| GB[OpenAI Module]
+    GB -->|query_index| GC[Pinecone Module]
+    GC --> G
+    G --> H[Enrich Result and Store in Pinecone]
+    H -->|get_ada_embedding| HA[OpenAI Module]
+    HA -->|upsert| HB[Pinecone Module]
+    HB --> H
+    H --> I[Task Creation Agent]
+    I -->|openai_call| IA[OpenAI Module]
+    IA --> I
+    I --> J[Add New Tasks to Task List]
+    J --> K[Prioritization Agent]
+    K -->|openai_call| KA[OpenAI Module]
+    KA --> K
+    K --> L[Sleep]
+    L --> E
+
+    classDef modules fill:#f9,stroke:#f08080,stroke-width:2px;
+    class GA,GB,GC,HA,HB,IA,KA modules;
+```
+
+The program uses Pinecone (a cloud-hosted VectorDB) to create an index for storing task results, along with task names and additional metadata. The context_agent function retrieves the context of previously completed tasks from Pinecone to inform the execution of the current task.
 
 ## Getting Started with CrustAGI
 To get started with CrustAGI, follow these steps:
@@ -43,7 +73,7 @@ The main function contains the main loop that continuously executes tasks, gener
 - Community and Ecosystem: Rust has a vibrant and growing community, along with a rich ecosystem of libraries and tools. By choosing Rust, we gain access to a wealth of resources and support that can help accelerate our development process and improve the quality of our applications.
 
 ## Disclaimer
-CrustAGI is designed to run continuously as part of a task management system. Running this script continuously can result in high API usage, so please use it responsibly. Ensure that you have set up the OpenAI and Pinecone APIs correctly before running the script.
+CrustAGI is designed to run continuously as part of a task management system. Running this program continuously can result in high API usage, so please use it responsibly. Ensure that you have set up the OpenAI and Pinecone APIs correctly before running the program.
 
 ## License
 CrustAGI is open-source software. For more information, please see the LICENSE file in the CrustAGI repository.
