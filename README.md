@@ -1,6 +1,6 @@
 # CrustAGI 🦀
 
-CrustAGI is a Rust-based implementation of an AI-powered task management system that uses OpenAI and Pinecone APIs to create, prioritize, and execute tasks. The system generates tasks based on the results of previous tasks and a predefined objective. It leverages OpenAI's natural language processing (NLP) capabilities to create new tasks and Pinecone to store and retrieve task results for context.
+CrustAGI is an experimental Rust-based implementation of an AI-powered task management system that uses OpenAI and Pinecone APIs to create, prioritize, and execute tasks. The system generates tasks based on the results of previous tasks and a predefined objective. It leverages OpenAI's natural language processing (NLP) capabilities to create new tasks and Pinecone to store and retrieve task results for context.
 
 ## How It Works
 CrustAGI operates in an infinite loop, performing the following steps:
